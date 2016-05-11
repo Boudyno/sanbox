@@ -1,3 +1,6 @@
 Added in branch1.
 Added in branch1.
 Added as other commit.
+Extra line from branch 2.
+Extra line from branch 2.
+Another added line.
