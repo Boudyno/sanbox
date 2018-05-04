@@ -54,6 +54,11 @@ phases:
       #- find -name node
       #- find / -name node
       - npm install
+
+      - sudo chmod +x gradlew
+  build:
+      commands:
+        - ./gradlew clean build -Penv=ci
 cache:
   paths:
     # https://github.com/Idealstack/codebuild-example/blob/master/buildspec-2-caching.yml
