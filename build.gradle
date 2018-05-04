@@ -1,0 +1,337 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        repositories { jcenter() }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE")
+        classpath('io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE')
+        classpath 'org.springframework:springloaded:1.2.6.RELEASE'
+    }
+}
+plugins {
+    id "com.moowork.grunt" version "0.10"
+}
+
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'idea'
+apply plugin: 'com.moowork.grunt'
+apply plugin: 'io.spring.dependency-management'
+
+configurations {
+    jaxb
+    jaxws
+}
+
+// tag::wsdl[]
+task genJaxb {
+    ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
+    ext.classesDir = "${buildDir}/classes/jaxb"
+    ext.schemaDir = "${projectDir}/src/main/resources/wsdl"
+
+    outputs.dir classesDir
+
+    doLast() {
+        project.ant {
+            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
+                    classpath: configurations.jaxb.asPath
+            mkdir(dir: sourcesDir)
+            mkdir(dir: classesDir)
+
+            xjc(destdir: sourcesDir) {
+                schema(dir: schemaDir, includes: "**/*")
+                arg(value: "-wsdl")
+                produces(dir: sourcesDir, includes: "**/*.java")
+            }
+
+            javac(destdir: classesDir, source: 1.8, target: 1.8, debug: true,
+                    debugLevel: "lines,vars,source",
+                    classpath: configurations.jaxb.asPath,
+                    includeantruntime: "false") {
+                src(path: sourcesDir)
+                include(name: "**/*.java")
+                include(name: "*.java")
+            }
+
+            copy(todir: classesDir) {
+                fileset(dir: sourcesDir, erroronmissingdir: false) {
+                    exclude(name: "**/*.java")
+                }
+            }
+        }
+    }
+}
+// end::wsdl[]
+
+task wsimport {
+    ext.destDir = file("${buildDir}/generated-sources/test/ws")
+    ext.classesDir = file("${buildDir}/classes/testws")
+    ext.schemaDir = "${projectDir}/src/test/resources/wsdl"
+    doLast {
+        fileTree(dir: schemaDir, include: '**/*.wsdl')each { f ->
+            ant {
+                classesDir.mkdirs();
+                destDir.mkdirs()
+                taskdef(name: 'wsimport',
+                        classname: 'com.sun.tools.ws.ant.WsImport',
+                        classpath: configurations.jaxws.asPath
+                )
+                wsimport(keep: true,
+                        destdir: classesDir,
+                        sourcedestdir: destDir,
+                        extension: "true",
+                        verbose: "false",
+                        quiet: "false",
+                        xnocompile: "true",
+                        wsdl: f) {
+                    xjcarg(value: "-XautoNameResolution")
+                }
+                javac(destdir: classesDir, source: 1.8, target: 1.8, debug: true,
+                        debugLevel: "lines,vars,source",
+                        classpath: configurations.jaxb.asPath,
+                        includeantruntime: "false") {
+                    src(path: destDir)
+                    include(name: "**/*.java")
+                    include(name: "*.java")
+                }
+
+            }
+        }
+    }
+}
+
+springBoot {
+    mainClass  = 'cz.tipsport.lottery.TipLotteryApplication'
+}
+
+/**
+ * Gets the version name from the latest Git tag
+ */
+def getVersionName = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+/**
+ * Gets short last commit hash tag
+ */
+def getLastCommitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'log', '-1', '--format="%h"'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+applicationDefaultJvmArgs = ["-Xmx5g",
+                             "-Dsun.net.inetaddr.ttl=30", // Necessary for RDS failover
+                             "-Djava.security.properties=config/java.security.legacy",
+                             "-XX:+UseG1GC",
+                             "-XX:+HeapDumpOnOutOfMemoryError",
+                             "-XX:HeapDumpPath=/var/log/tip-lottery/heapdump`date`.hprof",
+                             "-XX:+ExitOnOutOfMemoryError",
+                             "-XX:OnOutOfMemoryError=echo 'bin/tip-lottery 2>> /tmp/tip-lottery_error.log >> /tmp/tip-lottery.log & echo \$! > /var/run/tip-lottery.pid' | at now"
+]
+
+def env = hasProperty('env') ? env : 'dev'
+def nonDev =  env != 'dev'
+
+if (env == 'test' || env == 'standby') {
+    applicationDefaultJvmArgs[0] = "-Xmx1024m"
+}
+
+jar {
+    baseName = 'tip-lottery'
+    manifest {
+        attributes(
+                "Version" : env == 'ci' ? "test-version" : getVersionName() + "-" + getLastCommitHash(),
+                "Timestamp" : new Date().format('dd.MM.yyyy HH:mm:ss')
+        )
+    }
+    from genJaxb.classesDir
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-aop")
+    compile("org.springframework.boot:spring-boot-starter-web-services")
+    compile("org.springframework.boot:spring-boot-starter-mail")
+    compile("org.springframework.boot:spring-boot-starter-data-redis")
+    compile("org.springframework:spring-context-support")
+    compile("org.springframework:spring-orm")
+    compile("org.springframework.session:spring-session:1.2.2.RELEASE")
+    compile("com.mchange:c3p0:0.9.5.2")
+    compile("org.hibernate:hibernate-core:4.3.11.Final")
+    compile("org.hibernate:hibernate-c3p0:4.3.11.Final")
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.3")
+    compile("org.quartz-scheduler:quartz:2.2.3"){
+        exclude group: 'c3p0'
+    }
+    compile("com.github.cage:cage:1.0")
+    runtime("org.postgresql:postgresql:9.4.1211")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile('org.apache.httpcomponents:httpclient:4.5.1')
+    compile(files(genJaxb.classesDir).builtBy(genJaxb))
+    testCompile(files(wsimport.classesDir).builtBy(wsimport))
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile('org.thymeleaf.extras:thymeleaf-extras-java8time:2.1.0.RELEASE')
+    compile('org.apache.poi:poi-ooxml:3.17')
+    compile('net.sf.barcode4j:barcode4j:2.1')
+    // compile("wsdl4j:wsdl4j:1.6.1")
+    jaxb "com.sun.xml.bind:jaxb-xjc:2.1.7"
+    jaxws 'com.sun.xml.ws:jaxws-tools:2.1.7'
+    compile('org.xhtmlrenderer:flying-saucer-pdf:9.1.4')
+}
+
+distributions {
+    main {
+        contents {
+            from('db/scripts') {
+                into "db/scripts"
+            }
+            if (nonDev) {
+                from { "etc/environments/${env}" }
+            }
+        }
+    }
+}
+
+task gruntBuildProd(type: GruntTask) {
+   args = [ "prod"]
+}
+
+task gruntBuildCi(type: GruntTask) {
+    args = [ "ci"]
+}
+
+task gruntBuildDev(type: GruntTask) {
+   args = [ ]
+}
+
+sourceSets {
+    main {
+        resources {
+            if(nonDev) {
+                tasks.clean.execute()
+                if (env == 'ci') {
+                    tasks.gruntBuildCi.execute()
+                }
+                else {
+                    tasks.gruntBuildProd.execute()
+                }
+                setSrcDirs([ 'build/grunt' ])
+			}
+			else {
+				tasks.gruntBuildDev.execute()
+			}
+        }
+    }
+}
+
+idea {
+    module {
+        inheritOutputDirs = false
+        outputDir = file("$buildDir/classes/main/")
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.2'
+}
+
+test {
+    exclude '**/selenium/**'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    repositories {
+        mavenCentral()
+        repositories { jcenter() }
+    }
+}
+
+project(':web-tests') {
+    dependencies {
+        testCompile("org.springframework.boot:spring-boot-starter-test:1.4.2.RELEASE")
+        compile('org.seleniumhq.selenium:selenium-java:2.52.0')
+
+        compile("org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE")
+        compile('io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE')
+        compile 'org.springframework:springloaded:1.2.6.RELEASE'
+        compile 'commons-logging:commons-logging:1.1.1'
+        testCompile "com.codeborne:phantomjsdriver:1.2.1"
+
+    }
+
+    configure(test) {
+        Properties props = new Properties()
+        def propertiesFile = project.hasProperty("propertiesFile") ? "${propertiesFile}" : "${rootDir}/web-tests/src/test/resources/test.properties"
+        props.load(new FileInputStream(propertiesFile))
+        props.each { prop ->
+            project.ext.set(prop.key, prop.value)
+        }
+    }
+    test {
+        onlyIf {
+            project.hasProperty("webTestsEnabled")
+        }
+    }
+    task chromeWebTest(type: Test, dependsOn: cleanTest) {
+        jvmArgs "-Dwebdriver.chrome.driver=${project.ext.'webdriver.chrome.driver'}"
+        jvmArgs '-Dselenium.web.driver.factory=ChromeDriverFactory'
+        if (project.hasProperty("selenium.web.url")) {
+            jvmArgs "-Dselenium.web.url=${project.ext.'selenium.web.url'}"
+        }
+        doFirst {
+            project.properties.put("webTestsEnabled", "true")
+        }
+    }
+    task phantomWebTest(type: Test, dependsOn: cleanTest) {
+        jvmArgs "-Dphantomjs.binary.path=${project.ext.'phantomjs.binary.path'}"
+        jvmArgs '-Dselenium.web.driver.factory=PhantomJSDriverFactory'
+        if (project.hasProperty("selenium.web.url")) {
+            jvmArgs "-Dselenium.web.url=${project.ext.'selenium.web.url'}"
+        }
+        doFirst {
+            project.properties.put("webTestsEnabled", "true")
+        }
+    }
+    task firefoxWebTest(type: Test, dependsOn: cleanTest)  {
+        jvmArgs '-Dselenium.web.driver.factory=FirefoxDriverFactory'
+        if (project.hasProperty("selenium.web.url")) {
+            jvmArgs "-Dselenium.web.url=${project.ext.'selenium.web.url'}"
+        }
+        if (project.hasProperty("screenshots.path")) {
+            jvmArgs "-Dscreenshots.path=${project.ext.'screenshots.path'}"
+        }
+        doFirst {
+            project.properties.put("webTestsEnabled", "true")
+        }
+    }
+    task postingTestRun(type: JavaExec, dependsOn: build) {
+        classpath sourceSets.test.runtimeClasspath
+        main = "cz.tipsport.lottery.selenium.app.PostingTestApplication"
+    }
+    task runningTest(type: JavaExec, dependsOn: build) {
+        classpath sourceSets.test.runtimeClasspath
+        if (project.hasProperty("propsFile")) {
+            args(propsFile.split(','))
+        }
+        main = "cz.tipsport.lottery.selenium.app.RunningTestApplication"
+    }
+}
