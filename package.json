@@ -18,6 +18,16 @@
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-cli": "*",
-    "grunt-exec": "*"
+    "grunt-exec": "*",
+    "grunt-angular-templates": "*",
+    "grunt-usemin": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-cssmin": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-sass": "*",
+    "node-sass": "*",
+    "apidoc": "*",
+    "grunt-apidoc": "0.11.0"
   }
 }
