@@ -1,0 +1,33 @@
+{
+  "name": "tip-lottery",
+  "author" : "FOC Service s.r.o.",
+  "private" : true,
+  "dependencies": {
+    "angular": "1.5.10",
+    "angular-route": "1.5.10",
+    "angular-touch": "1.5.10",
+    "angular-i18n": "1.5.10",
+    "angular-animate": "1.5.10",
+    "angular-aria": "1.5.10",
+    "angular-material": "0.11.1",
+    "ui-select": "0.16.1",
+    "select2": "3.4.5",
+    "ngstorage": "*",
+    "moment": "*"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-cli": "*",
+    "grunt-exec": "*",
+    "grunt-angular-templates": "*",
+    "grunt-usemin": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-cssmin": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-sass": "*",
+    "node-sass": "*",
+    "apidoc": "*",
+    "grunt-apidoc": "0.11.0"
+  }
+}
