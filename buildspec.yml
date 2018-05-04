@@ -9,10 +9,8 @@ version: 0.2
 phases:
   install:
     commands:
-      - printenv
       - pwd
       - uname -a
-      - ls /
 
       # apt-get update -y is neccessary for install npm to work
       - apt-get update -y
