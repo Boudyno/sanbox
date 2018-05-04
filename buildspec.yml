@@ -27,6 +27,9 @@ phases:
       # disable https as workaroung for error "npm ERR! Error: CERT_UNTRUSTED" while installing bower
       - npm config set strict-ssl false
 
+      # https://github.com/animetosho/Nyuu/issues/14#issue-202306091
+      - ln -s /usr/bin/nodejs /usr/bin/node
+
       - npm install -g npm
       - npm --version
 
