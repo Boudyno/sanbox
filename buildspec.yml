@@ -20,6 +20,8 @@ phases:
       #- apt-get install openjdk-8-jdk
 
       #- apt-get install -y nodejs
+      # instead link (see below) try legacy; should be before installing npm?
+      - apt-get install nodejs-legacy
 
       - apt-get install -y npm
       - npm --version
@@ -29,8 +31,7 @@ phases:
 
       # https://github.com/animetosho/Nyuu/issues/14#issue-202306091
       #- ln -s /usr/bin/nodejs /usr/bin/node
-      # instead link try legacy
-      - apt-get install nodejs-legacy
+
 
       # Someone says this must be run 2x
       - npm install -g npm
