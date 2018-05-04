@@ -23,8 +23,11 @@ phases:
 
       - apt-get install -y npm
       - npm --version
-      - npm update
-      - npm version
+      - npm install -g npm
+      - npm --version
+
+      #- npm update
+      #- npm --version
       # if image is node.js, shouldn't be npm already installed?
 
       # disable https as workaroung for error "npm ERR! Error: CERT_UNTRUSTED" while installing bower
