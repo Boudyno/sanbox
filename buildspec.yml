@@ -22,6 +22,9 @@ phases:
       #- apt-get install -y nodejs
 
       - apt-get install -y npm
+      - npm --version
+      - npm update
+      - npm version
       # if image is node.js, shouldn't be npm already installed?
 
       # disable https as workaroung for error "npm ERR! Error: CERT_UNTRUSTED" while installing bower
@@ -36,7 +39,7 @@ phases:
       - echo $PATH
       - find -name node
       - find / -name node
-      - npm install
+      #- npm install
 cache:
   paths:
     # https://github.com/Idealstack/codebuild-example/blob/master/buildspec-2-caching.yml
