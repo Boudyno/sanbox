@@ -50,10 +50,10 @@ phases:
       #- npm install -g bower
   pre_build:
     commands:
-      - echo $PATH
-      - find -name node
-      - find / -name node
-      #- npm install
+      #- echo $PATH
+      #- find -name node
+      #- find / -name node
+      - npm install
 cache:
   paths:
     # https://github.com/Idealstack/codebuild-example/blob/master/buildspec-2-caching.yml
