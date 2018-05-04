@@ -34,8 +34,9 @@ phases:
 
 
       # Someone says this must be run 2x
-      - npm install -g npm
-      - npm install -g npm
+      # Give a try without update
+      # - npm install -g npm
+      # - npm install -g npm
 
       - npm --version
 
