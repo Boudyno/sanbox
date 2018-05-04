@@ -14,7 +14,7 @@ phases:
       - uname -a
 
       # apt-get update -y is neccessary for install npm to work
-      #- apt-get update -y
+      - apt-get update -y
 
       # I've switched image from java to node.js in hope weird error would disappeare, so I must install java manually
       # see https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04
