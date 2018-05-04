@@ -34,31 +34,8 @@ phases:
       #- npm install -g bower
   pre_build:
     commands:
-      - echo Entered the pre_build phase...
-
       - npm --version
       - node --version
-
-      # - docker login –u User –p $LOGIN_PASSWORD
-      #- npm --no-bin-links install
-      # - bower install --allow-root
-      #- npm --no-bin-links install grunt
-      #- npm --no-bin-links install grunt-cli
-      #- sudo chmod +x gradlew
-#  build:
-#    commands:
-      #- echo Entered the build phase...
-      #- echo Build started on `date`
-      #- mvn install
-      #- ./gradlew clean build -Penv=ci
-  #post_build:
-  #  commands:
-  #    - echo Entered the post_build phase...
-  #    - echo Build completed on `date`
-#artifacts:
-#  files:
-#    - target/messageUtil-1.0.jar
-#  discard-paths: yes
 cache:
   paths:
     - '/root/.npm/**/*'
