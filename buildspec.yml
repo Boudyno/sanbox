@@ -9,8 +9,8 @@ version: 0.2
 phases:
   install:
     commands:
-      - pwd
       - uname -a
+      - echo $PATH
 
       # apt-get update -y is neccessary for install npm to work
       - apt-get update -y
@@ -33,7 +33,9 @@ phases:
       #- npm install -g bower
   pre_build:
     commands:
-      - npm --version
+      - echo $PATH
+      - find -namme node
+      - find / -name node
       - npm install
 cache:
   paths:
