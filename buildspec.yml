@@ -12,6 +12,7 @@ phases:
       - printenv
       - pwd
       - uname -a
+      - ls /
 
       # apt-get update -y is neccessary for install npm to work
       - apt-get update -y
@@ -26,7 +27,7 @@ phases:
       # if image is node.js, shouldn't be npm already installed?
 
       # disable https as workaroung for error "npm ERR! Error: CERT_UNTRUSTED" while installing bower
-      #- npm config set strict-ssl false
+      - npm config set strict-ssl false
 
       # note to --no-bin-links
       # It is workaround for "npm WARN This failure might be due to the use of legacy binary "node" ... npm ERR! weird error 127"
@@ -36,7 +37,3 @@ phases:
     commands:
       - npm --version
       - npm install
-cache:
-  paths:
-    - '/root/.npm/**/*'
-    - '/root/.gradle/**/*'
