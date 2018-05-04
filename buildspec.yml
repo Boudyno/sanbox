@@ -1,0 +1,65 @@
+version: 0.2
+
+#env:
+#  variables:
+#    JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
+#  parameter-store:
+#    LOGIN_PASSWORD: "dockerLoginPassword"
+
+phases:
+  install:
+    commands:
+      - printenv
+      - pwd
+      - uname -a
+
+      # apt-get update -y is neccessary for install npm to work
+      #- apt-get update -y
+
+      # I've switched image from java to node.js in hope weird error would disappeare, so I must install java manually
+      # see https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04
+      #- apt-get install openjdk-8-jdk
+
+      #- apt-get install -y nodejs
+
+      #- apt-get install -y npm
+      # if image is node.js, shouldn't be npm already installed?
+
+      # disable https as workaroung for error "npm ERR! Error: CERT_UNTRUSTED" while installing bower
+      #- npm config set strict-ssl false
+
+      # note to --no-bin-links
+      # It is workaround for "npm WARN This failure might be due to the use of legacy binary "node" ... npm ERR! weird error 127"
+      # see https://github.com/giseburt/TinyG-node/issues/4#issuecomment-286034755
+      #- npm install -g bower
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+
+      - npm --version
+      - node --version
+
+      # - docker login –u User –p $LOGIN_PASSWORD
+      #- npm --no-bin-links install
+      # - bower install --allow-root
+      #- npm --no-bin-links install grunt
+      #- npm --no-bin-links install grunt-cli
+      #- sudo chmod +x gradlew
+#  build:
+#    commands:
+      #- echo Entered the build phase...
+      #- echo Build started on `date`
+      #- mvn install
+      #- ./gradlew clean build -Penv=ci
+  #post_build:
+  #  commands:
+  #    - echo Entered the post_build phase...
+  #    - echo Build completed on `date`
+#artifacts:
+#  files:
+#    - target/messageUtil-1.0.jar
+#  discard-paths: yes
+cache:
+  paths:
+    - '/root/.npm/**/*'
+    - '/root/.gradle/**/*'
