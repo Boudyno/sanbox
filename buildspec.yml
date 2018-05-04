@@ -28,12 +28,14 @@ phases:
       - npm config set strict-ssl false
 
       # https://github.com/animetosho/Nyuu/issues/14#issue-202306091
-      - ln -s /usr/bin/nodejs /usr/bin/node
+      #- ln -s /usr/bin/nodejs /usr/bin/node
+      # instead link try legacy
+      - apt-get install nodejs-legacy
 
       # Someone says this must be run 2x
       - npm install -g npm
       - npm install -g npm
-      
+
       - npm --version
 
       #- npm update
