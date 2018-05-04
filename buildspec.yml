@@ -34,7 +34,7 @@ phases:
   pre_build:
     commands:
       - echo $PATH
-      - find -namme node
+      - find -name node
       - find / -name node
       - npm install
 cache:
