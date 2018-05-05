@@ -21,14 +21,19 @@ phases:
 
       #- apt-get install -y nodejs
       # instead link (see below) try legacy; should be before installing npm?
-      - apt-get install -y nodejs-legacy
+
+      #- apt-get install -y nodejs-legacy
+      #- node --version
+
+      - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+      - sudo apt-get install -y nodejs
       - node --version
 
-      - apt-get install -y npm
-      - npm --version
+      # - apt-get install -y npm
+      # - npm --version
 
       # disable https as workaroung for error "npm ERR! Error: CERT_UNTRUSTED" while installing bower
-      - npm config set strict-ssl false
+      # - npm config set strict-ssl false
 
       # https://github.com/animetosho/Nyuu/issues/14#issue-202306091
       #- ln -s /usr/bin/nodejs /usr/bin/node
