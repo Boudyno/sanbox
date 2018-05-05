@@ -22,6 +22,7 @@ phases:
       #- apt-get install -y nodejs
       # instead link (see below) try legacy; should be before installing npm?
       - apt-get install -y nodejs-legacy
+      - node --version
 
       - apt-get install -y npm
       - npm --version
@@ -38,7 +39,7 @@ phases:
       # - npm install -g npm
       # - npm install -g npm
 
-      - npm --version
+      # - npm --version
 
       #- npm update
       #- npm --version
@@ -53,12 +54,12 @@ phases:
       #- echo $PATH
       #- find -name node
       #- find / -name node
-      - npm install
+      # - npm install
 
-      - sudo chmod +x gradlew
+      # - sudo chmod +x gradlew
   build:
       commands:
-        - ./gradlew clean build -Penv=ci
+      #  - ./gradlew clean build -Penv=ci
 cache:
   paths:
     # https://github.com/Idealstack/codebuild-example/blob/master/buildspec-2-caching.yml
