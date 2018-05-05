@@ -29,8 +29,8 @@ phases:
       - sudo apt-get install -y nodejs
       - node --version
 
-      # - apt-get install -y npm
-      # - npm --version
+      - apt-get install -y npm
+      - npm --version
 
       # disable https as workaroung for error "npm ERR! Error: CERT_UNTRUSTED" while installing bower
       # - npm config set strict-ssl false
@@ -41,7 +41,7 @@ phases:
 
       # Someone says this must be run 2x
       # Give a try without update
-      # - npm install -g npm
+      - npm install -g npm
       # - npm install -g npm
 
       # - npm --version
